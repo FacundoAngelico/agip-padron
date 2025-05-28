@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta CUIT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Consulta de CUIT</h1>
+    <form method="post">
+        <input type="text" name="cuit" placeholder="Ingrese CUIT" required>
+        <button type="submit">Buscar</button>
+    </form>
+    {% if result %}
+        <h2>Resultado:</h2>
+        <p><strong>CUIT:</strong> {{ result[0] }}</p>
+        <p><strong>Nombre:</strong> {{ result[1] }}</p>
+        <p><strong>Dirección:</strong> {{ result[2] }}</p>
+    {% elif result is not none %}
+        <p>No se encontró el CUIT ingresado.</p>
+    {% endif %}
+</body>
+</html>
