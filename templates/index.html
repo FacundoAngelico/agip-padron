@@ -8,16 +8,27 @@
 <body>
     <h1>Consulta de CUIT</h1>
     <form method="post">
-        <input type="text" name="cuit" placeholder="Ingrese CUIT" required>
+        <label for="cuit">CUIT:</label>
+        <input type="text" name="cuit" required><br><br>
+        <label for="monto">Monto:</label>
+        <input type="number" step="0.01" name="monto" required><br><br>
         <button type="submit">Buscar</button>
     </form>
-    {% if result %}
+
+    {% if resultado %}
         <h2>Resultado:</h2>
-        <p><strong>CUIT:</strong> {{ result[0] }}</p>
-        <p><strong>Nombre:</strong> {{ result[1] }}</p>
-        <p><strong>Dirección:</strong> {{ result[2] }}</p>
-    {% elif result is not none %}
-        <p>No se encontró el CUIT ingresado.</p>
+        <p><strong>Razón Social:</strong> {{ resultado.razon_social }}</p>
+        <hr>
+        <p><strong>Alícuota Percepción:</strong> {{ resultado.alicuota_percepcion }}%</p>
+        <p><strong>Monto Percepción:</strong> ${{ resultado.monto_percepcion }}</p>
+        <hr>
+        <p><strong>Alícuota Retención:</strong> {{ resultado.alicuota_retencion }}%</p>
+        <p><strong>Monto Retención:</strong> ${{ resultado.monto_retencion }}</p>
+        <hr>
+        <p><strong>Tipo Contr Insc:</strong> {{ resultado.tipo_contrib }}</p>
+        <p><strong>Marca Alicuota:</strong> {{ resultado.marca_alicuota }}</p>
+    {% elif resultado is not none %}
+        <p>No se encontró información para el CUIT ingresado.</p>
     {% endif %}
 </body>
 </html>
