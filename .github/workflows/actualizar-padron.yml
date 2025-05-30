@@ -1,4 +1,4 @@
-name: Actualizar padrón AGIP (sin token externo)
+name: Actualización AGIP Definitiva
 
 on:
   schedule:
@@ -8,20 +8,27 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
-    # Permisos mínimos necesarios
     permissions:
-      contents: write  # Permite hacer push
+      contents: write  # Permiso esencial
+      pull-requests: write  # Permiso adicional recomendado
 
     steps:
-      - name: Checkout
+      - name: Checkout con autenticación reforzada
         uses: actions/checkout@v4
-
-      - name: Configurar Python
-        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          persist-credentials: false  # ¡Importante!
 
-      - name: Instalar dependencias
-        run: pip install -r requirements.txt
+      # [Tus pasos de Python aquí...]
 
-      -
+      - name: Configuración Git Infalible
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://github.com/${{ github.repository }}.git
+
+      - name: Push Definitivo
+        run: |
+          git add database.db
+          git commit -m "🚀 Actualización confirmada $(date +'%Y-%m-%d %H:%M')" || exit 0
+          git pull --rebase origin main
+          git push origin HEAD:main
