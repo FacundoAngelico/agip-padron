@@ -2,8 +2,8 @@ name: Actualizar padrón AGIP mensual
 
 on:
   schedule:
-    - cron: '0 6 1 * *'  # 1 de cada mes a las 6:00 UTC (3AM Argentina)
-  workflow_dispatch:     # permite correrlo a mano
+    - cron: '0 6 1 * *'  # 1 de cada mes a las 6:00 UTC (3 AM ARG)
+  workflow_dispatch:      # Permite ejecutarlo a mano desde GitHub
 
 jobs:
   build:
@@ -30,8 +30,7 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
         git add database.db
-        git commit -m "🔄 Actualización automática del padrón mensual"
-        git push
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        git commit -m "🔄 Actualización automática del padrón mensual" || echo "Sin cambios para commitear"
+        git push origin HEAD:main
