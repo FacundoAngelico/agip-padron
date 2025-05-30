@@ -25,9 +25,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Sincronizar cambios
+      - name: Sincronizar y pushear cambios
         run: |
-          git pull --rebase origin main
+          git pull origin main --rebase
           git add database.db
-          git commit -m "🔄 Actualización automática $(date +'%Y-%m-%d')" || exit 0
+          git commit -m "🔄 Actualización automática $(date +'%Y-%m-%d')" || echo "Nada para commitear"
           git push origin HEAD:main
