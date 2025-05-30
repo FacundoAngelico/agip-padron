@@ -1,4 +1,4 @@
-name: Actualización Definitiva AGIP
+name: Actualizar padrón AGIP (sin token externo)
 
 on:
   schedule:
@@ -6,44 +6,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  update:
     runs-on: ubuntu-latest
+    # Permisos mínimos necesarios
     permissions:
-      contents: write
-      deployments: write
+      contents: write  # Permite hacer push
 
     steps:
-      - name: Checkout Bruteforce
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.ULTIMATE_PAT }}
-          persist-credentials: false # ¡Crucial!
 
-      - name: Setup Python
+      - name: Configurar Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Run scripts
-        run: |
-          python downloader.py
-          python processor.py
-
-      - name: Nuclear Push Setup
-        run: |
-          # Configuración infalible
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote remove origin
-          git remote add origin https://x-access-token:${{ secrets.ULTIMATE_PAT }}@github.com/${{ github.repository }}.git
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n "x-access-token:${{ secrets.ULTIMATE_PAT }}" | base64)"
-
-      - name: Execute Atomic Push
-        run: |
-          git add -A
-          git commit -m "💥 Actualización nuclear $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
-          git pull --rebase origin main
-          git push origin HEAD:main -f  # Fuerza push si es necesario
+      -
