@@ -1,4 +1,4 @@
-name: Actualización AGIP Definitiva
+name: Actualización AGIP con LFS
 
 on:
   schedule:
@@ -9,26 +9,25 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Permiso esencial
-      pull-requests: write  # Permiso adicional recomendado
+      contents: write
 
     steps:
-      - name: Checkout con autenticación reforzada
+      - name: Checkout con LFS
         uses: actions/checkout@v4
         with:
-          persist-credentials: false  # ¡Importante!
+          lfs: true  # ¡Importante para LFS!
+          fetch-depth: 0  # Trae todo el historial
 
       # [Tus pasos de Python aquí...]
 
-      - name: Configuración Git Infalible
+      - name: Configurar Git
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://github.com/${{ github.repository }}.git
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Push Definitivo
+      - name: Sincronizar cambios
         run: |
-          git add database.db
-          git commit -m "🚀 Actualización confirmada $(date +'%Y-%m-%d %H:%M')" || exit 0
           git pull --rebase origin main
+          git add database.db
+          git commit -m "🔄 Actualización automática $(date +'%Y-%m-%d')" || exit 0
           git push origin HEAD:main
