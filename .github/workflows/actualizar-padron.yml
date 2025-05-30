@@ -8,30 +8,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Esto es OBLIGATORIO incluso con PAT
+
     steps:
-      - name: Clonar repositorio
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.REPO_TOKEN }}  # PAT personal
+          token: ${{ secrets.REPO_TOKEN }}
+          fetch-depth: 0  # Importante para operaciones git
 
-      - name: Configurar Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+      # [...] (tus otros pasos de Python)
 
-      - name: Instalar dependencias
-        run: pip install -r requirements.txt
-
-      - name: Ejecutar scripts
+      - name: Commit and Push
         run: |
-          python downloader.py
-          python processor.py
-
-      - name: Commit y push
-        run: |
+          # Configuración esencial de Git
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.REPO_TOKEN }}@github.com/${{ github.repository }}
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Fuerza la configuración del remote con autenticación
+          git remote rm origin
+          git remote add origin https://${{ secrets.REPO_TOKEN }}@github.com/${{ github.repository }}.git
+          
+          # Operaciones de commit
           git add database.db
-          git commit -m "🔄 Actualización automática" || echo "Sin cambios"
+          git pull origin main  # Crucial para evitar conflictos
+          git commit -m "🔄 Actualización automática" || echo "No hay cambios"
           git push origin HEAD:main
