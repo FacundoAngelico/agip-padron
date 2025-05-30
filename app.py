@@ -20,11 +20,14 @@ def index():
 
             with sqlite3.connect(DB_PATH) as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT razon_social, tipo_contrib, marca_alicuota, alicuota_percepcion, alicuota_retencion FROM padron WHERE cuit = ?", (cuit,))
+                cursor.execute("""SELECT razon_social, tipo_contrib, marca_alicuota,
+                                  alicuota_percepcion, alicuota_retencion,
+                                  vigencia_mes, vigencia_anio
+                                  FROM padron WHERE cuit = ?""", (cuit,))
                 row = cursor.fetchone()
 
                 if row:
-                    razon_social, tipo_contrib, marca_alicuota, alic_perc, alic_ret = row
+                    razon_social, tipo_contrib, marca_alicuota, alic_perc, alic_ret, mes, anio = row
                     resultado = {
                         "razon_social": razon_social,
                         "tipo_contrib": tipo_contrib,
@@ -32,7 +35,9 @@ def index():
                         "alicuota_percepcion": alic_perc,
                         "alicuota_retencion": alic_ret,
                         "monto_percepcion": f"{monto * (alic_perc / 100):.2f}",
-                        "monto_retencion": f"{monto * (alic_ret / 100):.2f}"
+                        "monto_retencion": f"{monto * (alic_ret / 100):.2f}",
+                        "vigencia_mes": mes,
+                        "vigencia_anio": anio
                     }
                 else:
                     resultado = {}  # CUIT no encontrado

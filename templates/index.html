@@ -27,6 +27,7 @@
         <hr>
         <p><strong>Tipo Contr Insc:</strong> {{ resultado.tipo_contrib }}</p>
         <p><strong>Marca Alicuota:</strong> {{ resultado.marca_alicuota }}</p>
+        <p><strong>Fecha de Vigencia:</strong> {{ resultado.vigencia_mes }} {{ resultado.vigencia_anio }}</p>
     {% elif resultado is not none %}
         <p>No se encontró información para el CUIT ingresado.</p>
     {% endif %}

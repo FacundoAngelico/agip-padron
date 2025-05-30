@@ -1,0 +1,37 @@
+name: Actualizar padrón AGIP mensual
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'  # 1 de cada mes a las 6:00 UTC (3AM Argentina)
+  workflow_dispatch:     # permite correrlo a mano
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonar repositorio
+      uses: actions/checkout@v3
+
+    - name: Configurar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Instalar dependencias
+      run: pip install -r requirements.txt
+
+    - name: Ejecutar scripts de descarga y procesamiento
+      run: |
+        python downloader.py
+        python processor.py
+
+    - name: Hacer commit y push del archivo actualizado
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add database.db
+        git commit -m "🔄 Actualización automática del padrón mensual"
+        git push
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
