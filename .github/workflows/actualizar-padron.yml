@@ -27,7 +27,7 @@ jobs:
 
       - name: Sincronizar y pushear cambios
         run: |
-          git pull origin main --rebase
+          git pull --rebase origin main
           git add database.db
           git commit -m "🔄 Actualización automática $(date +'%Y-%m-%d')" || echo "Nada para commitear"
           git push origin HEAD:main
