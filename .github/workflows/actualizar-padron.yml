@@ -2,21 +2,17 @@ name: Actualizar padrón AGIP mensual
 
 on:
   schedule:
-    - cron: '0 6 1 * *'  # 1 de cada mes a las 6:00 UTC (3 AM ARG)
-  workflow_dispatch:      # Permite ejecutarlo a mano desde GitHub
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 👇 Añade permisos de escritura para el GITHUB_TOKEN
-    permissions:
-      contents: write
-
     steps:
       - name: Clonar repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # Usa GITHUB_TOKEN (automático) o un PAT
+          token: ${{ secrets.REPO_TOKEN }}  # PAT personal
 
       - name: Configurar Python
         uses: actions/setup-python@v4
@@ -26,15 +22,16 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Ejecutar scripts de descarga y procesamiento
+      - name: Ejecutar scripts
         run: |
           python downloader.py
           python processor.py
 
-      - name: Hacer commit y push del archivo actualizado
+      - name: Commit y push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.REPO_TOKEN }}@github.com/${{ github.repository }}
           git add database.db
-          git commit -m "🔄 Actualización automática del padrón mensual" || echo "Nada para commitear"
+          git commit -m "🔄 Actualización automática" || echo "Sin cambios"
           git push origin HEAD:main
