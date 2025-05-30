@@ -1,24 +1,23 @@
-name: Actualización AGIP mensual (sin token)
+name: Actualización padrón AGIP
 
 on:
   schedule:
-    - cron: '0 6 1 * *'  # 1° de cada mes a las 6 AM UTC
-  workflow_dispatch:       # Permite ejecutarlo a mano
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # ¡IMPORTANTE para hacer git push sin token!
+      contents: write
 
     steps:
-      - name: Checkout con LFS
+      - name: Checkout con historial completo
         uses: actions/checkout@v4
         with:
-          lfs: true
-          fetch-depth: 0  # Trae todo el historial (necesario para rebase)
+          fetch-depth: 0  # necesario para pull --rebase
 
-      - name: Configurar Python
+      - name: Instalar Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
@@ -26,22 +25,16 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Ejecutar scripts de descarga y procesamiento
+      - name: Ejecutar scripts
         run: |
           python downloader.py
           python processor.py
 
-      - name: Configurar Git
+      - name: Configurar Git y subir cambios
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Hacer pull antes del push (rebase seguro)
-        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull origin main --rebase
-
-      - name: Commit y push del padrón actualizado
-        run: |
           git add database.db
           git commit -m "🔄 Actualización automática del padrón mensual" || echo "Nada para commitear"
           git push origin HEAD:main
