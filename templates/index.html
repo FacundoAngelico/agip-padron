@@ -1,35 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Consulta CUIT</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>Consulta CUIT | AyiGroup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Consulta de CUIT</h1>
-    <form method="post">
-        <label for="cuit">CUIT:</label>
-        <input type="text" name="cuit" required><br><br>
-        <label for="monto">Monto:</label>
-        <input type="number" step="0.01" name="monto" required><br><br>
-        <button type="submit">Buscar</button>
+  <header class="navbar">
+    <div class="navbar-logo">
+      <img src="{{ url_for('static', filename='ayi-logo.png') }}" alt="Logo AyiGroup">
+      <span>Padron CABA</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>Consulta por CUIT</h1>
+    <form method="post" class="form-box">
+      <label for="cuit">CUIT</label>
+      <input type="text" name="cuit" required placeholder="Ej: 30XXXXXXXXX">
+      
+      <label for="monto">Monto</label>
+      <input type="number" step="0.01" name="monto" required placeholder="Ej: 10000.50">
+
+      <button type="submit">Buscar</button>
     </form>
 
     {% if resultado %}
-        <h2>Resultado:</h2>
-        <p><strong>Razón Social:</strong> {{ resultado.razon_social }}</p>
-        <hr>
-        <p><strong>Alícuota Percepción:</strong> {{ resultado.alicuota_percepcion }}%</p>
-        <p><strong>Monto Percepción:</strong> ${{ resultado.monto_percepcion }}</p>
-        <hr>
-        <p><strong>Alícuota Retención:</strong> {{ resultado.alicuota_retencion }}%</p>
-        <p><strong>Monto Retención:</strong> ${{ resultado.monto_retencion }}</p>
-        <hr>
-        <p><strong>Tipo Contr Insc:</strong> {{ resultado.tipo_contrib }}</p>
-        <p><strong>Marca Alicuota:</strong> {{ resultado.marca_alicuota }}</p>
-        <p><strong>Fecha de Vigencia:</strong> {{ resultado.vigencia_mes }} {{ resultado.vigencia_anio }}</p>
+    <div class="resultado">
+      <h2>Resultado</h2>
+      <p><strong>Razón Social:</strong> {{ resultado.razon_social }}</p>
+      <hr>
+      <p><strong>Alícuota Percepción:</strong> {{ resultado.alicuota_percepcion }}%</p>
+      <p><strong>Monto Percepción:</strong> ${{ resultado.monto_percepcion }}</p>
+      <hr>
+      <p><strong>Alícuota Retención:</strong> {{ resultado.alicuota_retencion }}%</p>
+      <p><strong>Monto Retención:</strong> ${{ resultado.monto_retencion }}</p>
+      <hr>
+      <p><strong>Tipo Contr Insc:</strong> {{ resultado.tipo_contrib }}</p>
+      <p><strong>Marca Alícuota:</strong> {{ resultado.marca_alicuota }}</p>
+      <p><strong>Fecha de Vigencia:</strong> {{ resultado.vigencia_mes }} {{ resultado.vigencia_anio }}</p>
+    </div>
     {% elif resultado is not none %}
-        <p>No se encontró información para el CUIT ingresado.</p>
+    <div class="no-result">No se encontró información para el CUIT ingresado.</div>
     {% endif %}
+  </main>
 </body>
 </html>
