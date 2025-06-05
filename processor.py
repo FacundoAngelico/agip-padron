@@ -1,7 +1,5 @@
-import csv
 import os
 import sqlite3
-import sys
 from datetime import datetime
 
 DB_NAME = "database.db"
@@ -14,13 +12,11 @@ def procesar_padron():
     archivo_nombre = f"ARDJU008{month_str}{year}.TXT"
 
     if not os.path.exists(archivo_nombre):
-        print(f"Error: No se encontró {archivo_nombre}")
+        print(f"❌ No se encontró {archivo_nombre}")
         return
 
-    print(f"Procesando: {archivo_nombre}")
-    csv.field_size_limit(10_000_000)
+    print(f"🔁 Procesando: {archivo_nombre}")
 
-    # Eliminar la base si existe
     if os.path.exists(DB_NAME):
         os.remove(DB_NAME)
 
@@ -40,42 +36,28 @@ def procesar_padron():
         )
     """)
 
-    encodings = ['latin-1', 'utf-8', 'cp1252', 'iso-8859-1']
-    encoding_exito = None
-
-    for encoding in encodings:
-        try:
-            with open(archivo_nombre, 'r', encoding=encoding) as f:
-                f.readline()
-            encoding_exito = encoding
-            break
-        except:
-            continue
-
-    if not encoding_exito:
-        print("No se pudo determinar la codificación del archivo")
-        return
-
-    print(f"Codificación detectada: {encoding_exito}")
-
-    month_name = now.strftime("%B")
     registros_insertados = 0
+    registros_descartados = 0
+    month_name = now.strftime("%B")
 
-    with open(archivo_nombre, 'r', encoding=encoding_exito) as f:
-        reader = csv.reader(f, delimiter=';', quoting=csv.QUOTE_MINIMAL)
-
-        for row_num, row in enumerate(reader, 1):
+    with open(archivo_nombre, 'r', encoding='latin-1', errors='ignore') as f:
+        for row_num, linea in enumerate(f, 1):
             try:
+                row = linea.strip().split(';')
+
                 if len(row) < 12:
+                    registros_descartados += 1
                     continue
 
-                cuit = row[3].strip()
-                razon_social = row[11].strip()
-                tipo_contrib = row[4].strip()
-                marca_alicuota = row[6].strip()
+                cuit_raw = row[3]
+                cuit = cuit_raw.strip().replace('-', '').replace('.', '').replace(' ', '')
 
                 if not cuit.isdigit() or len(cuit) != 11:
+                    registros_descartados += 1
                     continue
+
+                tipo_contrib = row[4].strip()
+                marca_alicuota = row[5].strip()
 
                 try:
                     alicuota_percepcion = float(row[7].replace(',', '.')) if row[7] else 0.0
@@ -84,22 +66,41 @@ def procesar_padron():
                     alicuota_percepcion = 0.0
                     alicuota_retencion = 0.0
 
+                # Buscar razón social a partir del campo 12 en adelante
+                razon_social = row[12].strip() if len(row) > 12 else row[-1].strip()
+
+                if cuit == "30500017704":
+                    print(f"\n🟢 Encontrado CUIT {cuit} en fila {row_num}")
+                    print(f"➡️ Razon social: {razon_social}")
+                    print(f"➡️ Percepción: {alicuota_percepcion}, Retención: {alicuota_retencion}")
+
                 cursor.execute("""
                     INSERT OR REPLACE INTO padron
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, (cuit, razon_social, tipo_contrib, marca_alicuota,
-                      alicuota_percepcion, alicuota_retencion,
-                      month_name, str(year)))
+                """, (
+                    cuit,
+                    razon_social,
+                    tipo_contrib,
+                    marca_alicuota,
+                    alicuota_percepcion,
+                    alicuota_retencion,
+                    month_name,
+                    str(year)
+                ))
 
                 registros_insertados += 1
 
             except Exception as e:
-                print(f"Error en fila {row_num}: {str(e)}")
+                registros_descartados += 1
+                print(f"💥 Error en fila {row_num}: {e}")
                 continue
 
     conn.commit()
     conn.close()
-    print(f"\nProceso completado. Registros insertados: {registros_insertados}")
+
+    print(f"\n✅ Proceso finalizado.")
+    print(f"✔️ Registros insertados: {registros_insertados}")
+    print(f"⚠️ Registros descartados: {registros_descartados}")
 
 if __name__ == '__main__':
     procesar_padron()
