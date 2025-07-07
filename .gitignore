@@ -1,0 +1,12 @@
+# Ignorar todos los archivos del padrón
+ARDJU*.TXT
+ARDJU*.rar
+
+# Ignorar caché de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorar entornos virtuales si tenés uno
+venv/
+.env
